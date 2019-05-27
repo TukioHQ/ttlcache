@@ -6,7 +6,7 @@ TTLCache is a minimal wrapper over a interface type map in golang, entries of wh
 2. Auto-Expiring after a certain time
 3. Auto-Extending expiration on `Get`s
 
-[![Build Status](https://travis-ci.org/TukioHQ/ttlcache.svg)](https://travis-ci.org/TukioHQ/ttlcache)
+<!-- [![Build Status](https://travis-ci.org/TukioHQ/ttlcache.svg)](https://travis-ci.org/TukioHQ/ttlcache) -->
 
 #### TTL Usage
 ```go
