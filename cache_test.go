@@ -6,14 +6,15 @@ import (
 )
 
 func TestGet(t *testing.T) {
-	cache := &Cache{
-		ttl:   time.Second,
-		items: map[string]*Item{},
-	}
+	cache := NewCache()
 
 	data, exists := cache.Get("hello")
-	if exists || data != "" {
+	if exists || (data != nil) {
 		t.Errorf("Expected empty cache to return no data")
+	}
+
+	if cache.isTTL {
+		t.Errorf("Expected non TTL cache")
 	}
 
 	cache.Set("hello", "world")
@@ -26,16 +27,45 @@ func TestGet(t *testing.T) {
 	}
 }
 
-func TestExpiration(t *testing.T) {
-	cache := &Cache{
-		ttl:   time.Second,
-		items: map[string]*Item{},
+func TestDelete(t *testing.T) {
+	cache := NewCache()
+	cache.Set("hello", "world")
+
+	data, exists := cache.Get("hello")
+	if !exists || (data != "world") {
+		t.Errorf("Expected cache to return data for `hello`")
 	}
+
+	// must delete
+	cache.Delete("hello")
+	data, exists = cache.Get("hello")
+	if exists || (data != nil) {
+		t.Errorf("Expected empty cache to return no data")
+	}
+}
+
+func TestClear(t *testing.T) {
+	cache := NewCache()
+	cache.Set("hello", "world")
+	cache.Set("foo", "bar")
+
+	if cache.Count() != 2 {
+		t.Errorf("Expected cache to have 2 entry items")
+	}
+
+	// must delete
+	cache.Clear()
+	if cache.Count() != 0 {
+		t.Errorf("Expected item in cache")
+	}
+}
+
+func TestExpiration(t *testing.T) {
+	cache := NewTTLCache(time.Second)
 
 	cache.Set("x", "1")
 	cache.Set("y", "z")
 	cache.Set("z", "3")
-	cache.startCleanupTimer()
 
 	count := cache.Count()
 	if count != 3 {
