@@ -60,7 +60,31 @@ func TestClear(t *testing.T) {
 	}
 }
 
-func TestExpiration(t *testing.T) {
+func TestItemSpecificTTL(t *testing.T) {
+	cache := NewCache()
+	cache.Set("foo", 1)
+	cache.SetTTL("bar", 2, time.Millisecond*100)
+
+	if cache.Count() != 2 {
+		t.Errorf("Expected cache to contain 2 items")
+	}
+
+	// must timeout
+	<-time.After(150 * time.Millisecond)
+	cache.mutex.Lock()
+	item, exists := cache.items["bar"]
+	cache.mutex.Unlock()
+	if exists || item != nil {
+		t.Errorf("Expected `bar` to be expired after 150ms")
+	}
+
+	// must now have only one item in cache
+	if cache.Count() != 1 {
+		t.Errorf("Expected 1 item in cache found %+v", cache.Count())
+	}
+}
+
+func TestGeneralTTL(t *testing.T) {
 	cache := NewTTLCache(time.Second)
 
 	cache.Set("x", "1")

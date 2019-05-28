@@ -7,8 +7,8 @@ import (
 
 func TestExpired(t *testing.T) {
 	item := &Item{data: "blahblah"}
-	if !item.expired() {
-		t.Errorf("Expected item to be expired by default")
+	if item.expired() {
+		t.Errorf("Expected item not to expire by default")
 	}
 
 	expiration := time.Now().Add(time.Second)
@@ -19,6 +19,7 @@ func TestExpired(t *testing.T) {
 
 	expiration = time.Now().Add(0 - time.Second)
 	item.expires = &expiration
+	item.isTTL = true
 	if !item.expired() {
 		t.Errorf("Expected item to be expired once time has passed")
 	}

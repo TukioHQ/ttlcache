@@ -8,7 +8,7 @@ TTLCache is a minimal wrapper over a interface type map in golang, entries of wh
 
 <!-- [![Build Status](https://travis-ci.org/TukioHQ/ttlcache.svg)](https://travis-ci.org/TukioHQ/ttlcache) -->
 
-#### TTL Usage
+#### Generic TTL Usage
 ```go
 import (
   "time"
@@ -23,7 +23,8 @@ func main () {
 }
 ```
 
-#### Non TTL Usage
+#### Item specific TTL Usage
+
 ```go
 import (
   "time"
@@ -33,6 +34,7 @@ import (
 func main () {
   cache := ttlcache.NewCache()
   cache.Set("key", 200)
+  cache.SetTTL("foo", "Bar", time.Second*2)
   value, exists := cache.Get("key")
   count := cache.Count()
 }

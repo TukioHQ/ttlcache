@@ -10,6 +10,7 @@ type Item struct {
 	sync.RWMutex
 	data    interface{}
 	expires *time.Time
+	isTTL   bool
 }
 
 func (item *Item) touch(duration time.Duration) {
@@ -17,11 +18,15 @@ func (item *Item) touch(duration time.Duration) {
 	defer item.Unlock()
 	expiration := time.Now().Add(duration)
 	item.expires = &expiration
+	item.isTTL = true
 }
 
 func (item *Item) expired() bool {
 	item.RLock()
 	defer item.RUnlock()
+	if !item.isTTL {
+		return false
+	}
 	var value bool
 	if item.expires == nil {
 		value = true

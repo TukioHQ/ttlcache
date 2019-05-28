@@ -25,6 +25,19 @@ func (cache *Cache) Set(key string, data interface{}) {
 	cache.items[key] = item
 }
 
+// SetTTL is a thread-safe way to add new items to the map with time TTL
+func (cache *Cache) SetTTL(key string, data interface{}, ttl time.Duration) {
+	cache.mutex.Lock()
+	defer cache.mutex.Unlock()
+	if !cache.isTTL {
+		cache.isTTL = true
+		cache.startTTLCleanupTimer()
+	}
+	item := &Item{data: data}
+	item.touch(ttl)
+	cache.items[key] = item
+}
+
 // Get is a thread-safe way to lookup items
 // Every lookup, also touches the item, hence extending it's life
 func (cache *Cache) Get(key string) (data interface{}, found bool) {
@@ -92,8 +105,8 @@ func (cache *Cache) Delete(key string) {
 func (cache *Cache) startTTLCleanupTimer() {
 	if cache.isTTL {
 		duration := cache.ttl
-		if duration < time.Second {
-			duration = time.Second
+		if duration < time.Millisecond {
+			duration = time.Millisecond
 		}
 		ticker := time.Tick(duration)
 		go (func() {
