@@ -105,8 +105,8 @@ func (cache *Cache) Delete(key string) {
 func (cache *Cache) startTTLCleanupTimer() {
 	if cache.isTTL {
 		duration := cache.ttl
-		if duration < time.Millisecond {
-			duration = time.Millisecond
+		if duration < (time.Millisecond * 10) {
+			duration = time.Millisecond * 10
 		}
 		ticker := time.Tick(duration)
 		go (func() {
